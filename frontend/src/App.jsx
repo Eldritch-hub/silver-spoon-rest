@@ -94,9 +94,10 @@ function Menu() {
 useEffect(() => {
   async function loadMenu() {
     try {
-      const res = await fetch("https://silver-spoon-backendd.onrender.com/api/menu");
-      const data = await res.json();
-      setDishes(data);
+
+const res = await fetch(`${import.meta.env.VITE_API_URL}/api/menu`);
+const data = await res.json();
+setDishes(data);
     } catch (err) {
       console.error("Could not load menu:", err);
     }
@@ -155,12 +156,11 @@ function Reservations() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch("https://silver-spoon-backendd.onrender.com/api/reservations", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/reservations`, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify(formData),
+});
       if (res.ok) {
         setResponse("✅ Reservation submitted successfully!");
         setFormData({
@@ -186,7 +186,8 @@ function Reservations() {
   async function fetchReservations() {
     setLoading(true);
     try {
-      const res = await fetch("https://silver-spoon-backendd.onrender.com/api/reservations");
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/reservations`);
+
       const data = await res.json();
       setReservations(Array.isArray(data) ? data.reverse() : []);
     } catch (err) {

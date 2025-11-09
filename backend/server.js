@@ -8,8 +8,8 @@ import reservationRoutes from "./routes/reservationRoutes.js";
 import menuRoutes from "./routes/menuRoutes.js";
 
 dotenv.config();
+const app = express();
 
-const cors = require("cors");
 app.use(cors({
   origin:
   ["*"],
