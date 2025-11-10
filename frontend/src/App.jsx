@@ -2,11 +2,8 @@ import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import { useState, useEffect } from "react";
-import axios from "axios";
 import { useCart } from "./context/cartContext";
 import { CartProvider } from "./context/cartContext";
-
-
 
 // ===== NAVBAR =====
 function Navbar() {
@@ -16,7 +13,7 @@ function Navbar() {
   return (
     <nav className="navbar navbar-expand-lg bg-dark navbar-dark py-3 px-4 fixed-top shadow-sm">
       <div className="container-fluid">
-        <a className="navbar-brand fw-bold text-warning" href="/">Silver Spoon 🍽️</a>
+        <Link className="navbar-brand fw-bold text-warning" to="/">Silver Spoon 🍽️</Link>
 
         <button
           className="navbar-toggler"
@@ -34,15 +31,11 @@ function Navbar() {
             <li className="nav-item"><Link className="nav-link" to="/reservations">Reservations</Link></li>
             <li className="nav-item"><Link className="nav-link" to="/about">About</Link></li>
             <li className="nav-item"><Link className="nav-link" to="/contact">Contact</Link></li>
-
-            <li className="nav-item">
-              <Link className="nav-link position-relative" to="/cart">
+            <li className="nav-item position-relative">
+              <Link className="nav-link" to="/cart">
                 Cart
                 {cartCount > 0 && (
-                  <span
-                    className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark"
-                    style={{ fontSize: "0.75rem" }}
-                  >
+                  <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark">
                     {cartCount}
                   </span>
                 )}
@@ -55,12 +48,13 @@ function Navbar() {
   );
 }
 
-
 // ===== FOOTER =====
 function Footer() {
   return (
     <footer className="bg-dark text-light text-center py-3 mt-5">
-      <p className="mb-0">© {new Date().getFullYear()} Silver Spoon Restaurant. Made with ❤️ in Lagos.</p>
+      <p className="mb-0">
+        © {new Date().getFullYear()} Silver Spoon Restaurant. Made with ❤️ in Lagos.
+      </p>
     </footer>
   );
 }
@@ -88,27 +82,24 @@ function Home() {
 // ===== MENU =====
 function Menu() {
   const [dishes, setDishes] = useState([]);
-  const { dispatch } = useCart(); 
-  
-  // inside your App.jsx or Menu component
-useEffect(() => {
-  async function loadMenu() {
-    try {
+  const { dispatch } = useCart();
 
-const res = await fetch(`${import.meta.env.VITE_API_URL}/api/menu`);
-const data = await res.json();
-setDishes(data);
-    } catch (err) {
-      console.error("Could not load menu:", err);
+  useEffect(() => {
+    async function loadMenu() {
+      try {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/menu`);
+        const data = await res.json();
+        setDishes(data);
+      } catch (err) {
+        console.error("Could not load menu:", err);
+      }
     }
-  }
-  loadMenu();
-}, []);
-
+    loadMenu();
+  }, []);
 
   const addToCart = (dish) => {
     dispatch({ type: "ADD", payload: dish });
-  }; 
+  };
 
   return (
     <div className="container my-5 pt-5">
@@ -135,47 +126,29 @@ setDishes(data);
 // ===== RESERVATIONS =====
 function Reservations() {
   const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    date: "",
-    time: "",
-    guests: "",
-    message: "",
+    name: "", email: "", phone: "", date: "", time: "", guests: "", message: "",
   });
-
   const [response, setResponse] = useState("");
   const [reservations, setReservations] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
+  const handleChange = (e) => setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/api/reservations`, {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify(formData),
-});
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
       if (res.ok) {
         setResponse("✅ Reservation submitted successfully!");
-        setFormData({
-          name: "",
-          email: "",
-          phone: "",
-          date: "",
-          time: "",
-          guests: "",
-          message: "",
-        });
+        setFormData({ name: "", email: "", phone: "", date: "", time: "", guests: "", message: "" });
         fetchReservations();
       } else {
-        const data = await res.json().catch(()=>({}));
-        setResponse(data.error || "❌ Failed to submit reservation. Try again.");
+        setResponse("❌ Failed to submit reservation.");
       }
     } catch (error) {
       console.error("Error:", error);
@@ -187,7 +160,6 @@ function Reservations() {
     setLoading(true);
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/api/reservations`);
-
       const data = await res.json();
       setReservations(Array.isArray(data) ? data.reverse() : []);
     } catch (err) {
@@ -200,7 +172,6 @@ function Reservations() {
 
   useEffect(() => {
     fetchReservations();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -208,78 +179,21 @@ function Reservations() {
       <h2 className="text-center text-danger fw-bold mb-4">Reserve a Table</h2>
 
       <form onSubmit={handleSubmit} className="w-75 mx-auto shadow p-4 rounded bg-light">
+        {["name", "email", "phone", "date", "time", "guests"].map((field) => (
+          <div key={field} className="mb-3">
+            <label className="form-label fw-semibold">{field.charAt(0).toUpperCase() + field.slice(1)}</label>
+            <input
+              type={field === "email" ? "email" : field === "date" ? "date" : field === "time" ? "time" : field === "guests" ? "number" : "text"}
+              className="form-control"
+              name={field}
+              value={formData[field]}
+              onChange={handleChange}
+              required={["name", "date", "time", "guests"].includes(field)}
+            />
+          </div>
+        ))}
         <div className="mb-3">
-          <label className="form-label fw-semibold">Full Name</label>
-          <input
-            type="text"
-            className="form-control"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            required
-          />
-        </div>
-
-        <div className="mb-3">
-          <label className="form-label fw-semibold">Email</label>
-          <input
-            type="email"
-            className="form-control"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-          />
-        </div>
-
-        <div className="mb-3">
-          <label className="form-label fw-semibold">Phone</label>
-          <input
-            type="text"
-            className="form-control"
-            name="phone"
-            value={formData.phone}
-            onChange={handleChange}
-          />
-        </div>
-
-        <div className="mb-3">
-          <label className="form-label fw-semibold">Date</label>
-          <input
-            type="date"
-            className="form-control"
-            name="date"
-            value={formData.date}
-            onChange={handleChange}
-            required
-          />
-        </div>
-
-        <div className="mb-3">
-          <label className="form-label fw-semibold">Time</label>
-          <input
-            type="time"
-            className="form-control"
-            name="time"
-            value={formData.time}
-            onChange={handleChange}
-            required
-          />
-        </div>
-
-        <div className="mb-3">
-          <label className="form-label fw-semibold">Guests</label>
-          <input
-            type="number"
-            className="form-control"
-            name="guests"
-            value={formData.guests}
-            onChange={handleChange}
-            required
-          />
-        </div>
-
-        <div className="mb-3">
-          <label className="form-label fw-semibold">Special Request (Optional)</label>
+          <label className="form-label fw-semibold">Message</label>
           <textarea
             className="form-control"
             name="message"
@@ -288,16 +202,12 @@ function Reservations() {
             onChange={handleChange}
           ></textarea>
         </div>
-
-        <button className="btn btn-danger w-100 fw-semibold" type="submit">
-          Submit Reservation
-        </button>
+        <button className="btn btn-danger w-100 fw-semibold" type="submit">Submit Reservation</button>
       </form>
 
       {response && <p className="text-center mt-3 fw-bold">{response}</p>}
 
       <hr className="my-5" />
-
       <h3 className="text-center fw-bold mb-4">📋 All Reservations</h3>
 
       {loading ? (
@@ -324,18 +234,33 @@ function Reservations() {
     </div>
   );
 }
+
 // ===== ABOUT =====
 function About() {
   return (
     <div className="container text-center my-5 pt-5">
       <h2 className="text-danger fw-bold mb-3">About Silver Spoon</h2>
-      <p className="lead">Born in Lagos, raised by flavor. Silver Spoon blends Nigerian tradition with modern luxury dining. Each meal is a story, served fresh. From the smoky Jollof that whispers nostalgia to the Asun that bites just right, every dish is crafted to celebrate local taste with world-class finesse.
-
-We believe fine dining doesn’t need to feel foreign — it just needs to feel right. Whether you’re here for a quiet dinner, a celebration, or a late-night craving, Silver Spoon is where Lagos gathers to eat, laugh, and taste memories reborn.</p>
+      <p className="lead">
+        Born in Lagos, raised by flavor. Silver Spoon blends Nigerian tradition with modern luxury dining.
+        Each meal is a story, served fresh.
+      </p>
     </div>
   );
 }
 
+// ===== CONTACT =====
+function Contact() {
+  return (
+    <div className="container text-center my-5 pt-5">
+      <h2 className="text-success fw-bold mb-3">Contact Us</h2>
+      <p>📞 <strong>+234 810 555 1212</strong></p>
+      <p>📧 <strong>info@silverspoon.com</strong></p>
+      <p>📍 22 Awolowo Road, Ikeja, Lagos</p>
+    </div>
+  );
+}
+
+// ===== CART =====
 function CartPage() {
   const { state, dispatch } = useCart();
   const total = state.items.reduce((s, i) => s + i.price * i.qty, 0);
@@ -343,7 +268,9 @@ function CartPage() {
   return (
     <div className="container my-5 pt-5">
       <h2 className="mb-4">Your Cart</h2>
-      {state.items.length === 0 ? <p>Your cart is empty.</p> : (
+      {state.items.length === 0 ? (
+        <p>Your cart is empty.</p>
+      ) : (
         <>
           <div className="row">
             {state.items.map(item => (
@@ -365,7 +292,6 @@ function CartPage() {
               </div>
             ))}
           </div>
-
           <div className="mt-4">
             <h4>Total: ₦{total}</h4>
             <button className="btn btn-warning">Checkout (coming soon)</button>
@@ -376,22 +302,10 @@ function CartPage() {
   );
 }
 
-
-// ===== CONTACT =====
-function Contact() {
-  return (
-    <div className="container text-center my-5 pt-5">
-      <h2 className="text-success fw-bold mb-3">Contact Us</h2>
-      <p>📞 <strong>+234 810 555 1212</strong></p>
-      <p>📧 <strong>info@silverspoon.com</strong></p>
-      <p>📍 22 Awolowo Road, Ikeja, Lagos</p>
-    </div>
-  );
-}
-
 // ===== MAIN APP =====
 function App() {
   return (
+    <CartProvider>
       <Router>
         <Navbar />
         <main>
@@ -406,6 +320,7 @@ function App() {
         </main>
         <Footer />
       </Router>
+    </CartProvider>
   );
 }
 
