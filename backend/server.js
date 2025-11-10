@@ -11,7 +11,7 @@ dotenv.config();
 const app = express();
 
 app.use(cors({
-  origin: ["https://silver-spoonn.vercel.app", "http://localhost:5173"],
+  origin: ["https://portfolio-h59fo0l3x-unorthodoxs-projects.vercel.app"],
   methods: ["GET", "POST"],
   credentials: true
 }));
