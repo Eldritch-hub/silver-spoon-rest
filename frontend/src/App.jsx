@@ -1,9 +1,10 @@
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import { Routes, Route, Link } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import { useState, useEffect } from "react";
 import { useCart } from "./context/cartContext";
 import { CartProvider } from "./context/cartContext";
+import Admin from "./pages/Admin";
 
 // ===== NAVBAR =====
 function Navbar() {
@@ -305,22 +306,23 @@ function CartPage() {
 // ===== MAIN APP =====
 function App() {
   return (
-    <CartProvider>
-      <Router>
-        <Navbar />
-        <main>
-          <Routes>
+    <>
+      <Navbar />
+      <main>
+        <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/menu" element={<Menu />} />
             <Route path="/reservations" element={<Reservations />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/cart" element={<CartPage />} />
+
+            <Route path="/admin" element={<Admin />} />
+
           </Routes>
         </main>
         <Footer />
-      </Router>
-    </CartProvider>
+      </>
   );
 }
 
